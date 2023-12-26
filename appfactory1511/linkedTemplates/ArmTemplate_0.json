@@ -744,7 +744,7 @@
 				],
 				"typeProperties": {
 					"schema": "dbo",
-					"table": "DimCustomerNew"
+					"table": "DimCustomer"
 				}
 			},
 			"dependsOn": [
