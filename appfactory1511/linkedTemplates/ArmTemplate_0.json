@@ -127,7 +127,6 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "Customer02.csv",
 						"folderPath": "Customer",
 						"fileSystem": "csv"
 					},
