@@ -13,6 +13,26 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/FileBinary')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "appvm_server",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": "access.log"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/01_dataflow_FactSales')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1335,7 +1355,9 @@
 				"annotations": [],
 				"lastPublishTime": "2023-12-26T13:34:07Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/FileBinary')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/10-ConvertAccessLog')]",
