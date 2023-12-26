@@ -1,0 +1,9 @@
+{
+	"name": "appfactory1511",
+	"location": "germanywestcentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "8a706add-6fb2-4130-9a01-63a0c2e11718",
+		"tenantId": "7320328a-90df-42e2-847e-e196f9356be1"
+	}
+}
