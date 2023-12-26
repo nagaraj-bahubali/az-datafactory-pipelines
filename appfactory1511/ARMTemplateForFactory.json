@@ -2207,7 +2207,7 @@
 				],
 				"typeProperties": {
 					"schema": "dbo",
-					"table": "DimCustomer"
+					"table": "DimCustomerNew"
 				}
 			},
 			"dependsOn": [
