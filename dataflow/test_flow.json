@@ -1,0 +1,88 @@
+{
+	"name": "test_flow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "test_csv",
+						"type": "DatasetReference"
+					},
+					"name": "testcsvstream"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "test_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "testsink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "testselect"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Correlation id} as string,",
+				"          {Operation name} as string,",
+				"          Status as string,",
+				"          {Event category} as string,",
+				"          Level as string,",
+				"          Time as string,",
+				"          Subscription as string,",
+				"          {Event initiated by} as string,",
+				"          {Resource type} as string,",
+				"          {Resource group} as string,",
+				"          Resource as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> testcsvstream",
+				"testcsvstream select(mapColumn(",
+				"          {Correlation id},",
+				"          Subscription,",
+				"          {Eventinitiated by} = {Event initiated by},",
+				"          Resourcetype = {Resource type},",
+				"          Resource",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> testselect",
+				"testselect sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Correlationid as string,",
+				"          Operationname as string,",
+				"          Status as string,",
+				"          Eventcategory as string,",
+				"          Level as string,",
+				"          Time as timestamp,",
+				"          Subscription as string,",
+				"          Eventinitiatedby as string,",
+				"          Resourcetype as string,",
+				"          Resourcegroup as string,",
+				"          Resource as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['testparquet.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          Correlationid = {Correlation id},",
+				"          Subscription,",
+				"          Eventinitiatedby = {Eventinitiated by},",
+				"          Resourcetype,",
+				"          Resource",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> testsink"
+			]
+		}
+	}
+}
