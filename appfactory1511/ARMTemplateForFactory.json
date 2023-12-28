@@ -34,14 +34,6 @@
 		"datalake1511_service_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://datalake1511.dfs.core.windows.net/"
-		},
-		"Blobtrigger_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
-		},
-		"trigger1_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
 		}
 	},
 	"variables": {
@@ -4034,56 +4026,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Blobtrigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/stagingmetric/blobs/PT1H",
-					"ignoreEmptyBlobs": false,
-					"scope": "[parameters('Blobtrigger_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger1')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "14-Metrics",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/stagingmetric/blobs/PT1H",
-					"ignoreEmptyBlobs": false,
-					"scope": "[parameters('trigger1_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/14-Metrics')]"
-			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/appvmRuntime')]",
