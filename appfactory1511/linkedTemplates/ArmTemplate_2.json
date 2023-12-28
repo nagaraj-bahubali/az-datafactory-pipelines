@@ -1902,6 +1902,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
+						"     purgeFiles: true,",
 						"     documentForm: 'documentPerLine') ~> stagingmetricstream",
 						"stagingmetricstream select(mapColumn(",
 						"          average,",
