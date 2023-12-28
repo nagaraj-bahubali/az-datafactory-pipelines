@@ -1,0 +1,19 @@
+{
+	"name": "InsightsMetricsData",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "webappdatalake1511_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "resourceId=/SUBSCRIPTIONS/ED7147D5-2551-4A4D-90F9-01DDBE88F283/RESOURCEGROUPS/APP-GRP/PROVIDERS/MICROSOFT.WEB/SITES/WEBAPP15111994",
+				"fileSystem": "insights-metrics-pt1m"
+			}
+		},
+		"schema": {}
+	}
+}
