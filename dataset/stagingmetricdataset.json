@@ -1,0 +1,49 @@
+{
+	"name": "stagingmetricdataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalake1511_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "stagingmetric"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"total": {
+					"type": "number"
+				},
+				"minimum": {
+					"type": "number"
+				},
+				"maximum": {
+					"type": "number"
+				},
+				"average": {
+					"type": "number"
+				},
+				"resourceId": {
+					"type": "string"
+				},
+				"time": {
+					"type": "string"
+				},
+				"metricName": {
+					"type": "string"
+				},
+				"timeGrain": {
+					"type": "string"
+				},
+				"count": {
+					"type": "integer"
+				}
+			}
+		}
+	}
+}
