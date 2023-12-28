@@ -39,6 +39,10 @@
 			"type": "string",
 			"defaultValue": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
 		},
+		"trigger1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -77,6 +81,9 @@
 					},
 					"datalake1511_service_properties_typeProperties_url": {
 						"value": "[parameters('datalake1511_service_properties_typeProperties_url')]"
+					},
+					"Blobtrigger_properties_typeProperties_scope": {
+						"value": "[parameters('Blobtrigger_properties_typeProperties_scope')]"
 					}
 				}
 			},
@@ -95,15 +102,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"appvm_server_password": {
-						"value": "[parameters('appvm_server_password')]"
-					},
-					"appvm_server_properties_typeProperties_host": {
-						"value": "[parameters('appvm_server_properties_typeProperties_host')]"
-					},
-					"appvm_server_properties_typeProperties_userId": {
-						"value": "[parameters('appvm_server_properties_typeProperties_userId')]"
 					}
 				}
 			},
@@ -124,6 +122,15 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"appvm_server_password": {
+						"value": "[parameters('appvm_server_password')]"
+					},
+					"appvm_server_properties_typeProperties_host": {
+						"value": "[parameters('appvm_server_properties_typeProperties_host')]"
+					},
+					"appvm_server_properties_typeProperties_userId": {
+						"value": "[parameters('appvm_server_properties_typeProperties_userId')]"
 					}
 				}
 			},
@@ -145,8 +152,8 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"Blobtrigger_properties_typeProperties_scope": {
-						"value": "[parameters('Blobtrigger_properties_typeProperties_scope')]"
+					"trigger1_properties_typeProperties_scope": {
+						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
 					}
 				}
 			},

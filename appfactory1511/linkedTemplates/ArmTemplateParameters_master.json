@@ -29,6 +29,9 @@
 		"Blobtrigger_properties_typeProperties_scope": {
 			"value": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
 		},
+		"trigger1_properties_typeProperties_scope": {
+			"value": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
+		},
 		"containerUri": {
 			"value": ""
 		},
