@@ -13,6 +13,553 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/02-Copy-To-Parquet')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copydatatoparquet",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Correlation id",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Correlationid",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Operation name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Operationname",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Status",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Status",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Event category",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Eventcategory",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Level",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Level",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Time",
+											"type": "DateTime",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Time",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Subscription",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Subscription",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Event initiated by",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Eventinitiatedby",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Resource type",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Resourcetype",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Resource group",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Resourcegroup",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "Resource",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Resource",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_swm",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "logdata_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copydatatopooldb",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copydatatoparquet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SqlDWSink",
+								"allowPolyBase": true,
+								"polyBaseSettings": {
+									"rejectValue": 0,
+									"rejectType": "value",
+									"useTypeDefault": true
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "datalake1511_service",
+									"type": "LinkedServiceReference"
+								},
+								"path": "staging"
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Correlationid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Correlationid",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Operationname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Operationname",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Status",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Eventcategory",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Eventcategory",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Level",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Level",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Time",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Subscription",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Subscription",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Eventinitiatedby",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Eventinitiatedby",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Resourcetype",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Resourcetype",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Resourcegroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Resourcegroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Resource",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Resource",
+											"type": "String"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "logdata_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "pooldb_logdata_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-26T10:54:49Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/03-Copy-UsingQuery')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_eiw",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "."
+							},
+							{
+								"name": "Destination",
+								"value": "dbo.FactSales"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT dt.[ProductID],dt.[SalesOrderID],dt.[OrderQty],dt.[UnitPrice],hd.[OrderDate],hd.[CustomerID],hd.[TaxAmt]\n  FROM [SalesLT].[SalesOrderDetail] dt\n  LEFT JOIN [SalesLT].[SalesOrderHeader] hd\n  ON dt.[SalesOrderID]=hd.[SalesOrderID]",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SqlDWSink",
+								"writeBehavior": "Insert"
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ProductID",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "ProductID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrderID",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "SalesOrderID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "CustomerID",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "CustomerID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "OrderQty",
+											"type": "Int16",
+											"physicalType": "smallint"
+										},
+										"sink": {
+											"name": "OrderQty",
+											"type": "Int16",
+											"physicalType": "smallint"
+										}
+									},
+									{
+										"source": {
+											"name": "UnitPrice",
+											"type": "Decimal",
+											"physicalType": "money",
+											"scale": 4,
+											"precision": 19
+										},
+										"sink": {
+											"name": "UnitPrice",
+											"type": "Decimal",
+											"physicalType": "money",
+											"scale": 4,
+											"precision": 19
+										}
+									},
+									{
+										"source": {
+											"name": "OrderDate",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "OrderDate",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "TaxAmt",
+											"type": "Decimal",
+											"physicalType": "money",
+											"scale": 4,
+											"precision": 19
+										},
+										"sink": {
+											"name": "TaxAmt",
+											"type": "Decimal",
+											"physicalType": "money",
+											"scale": 4,
+											"precision": 19
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_eiw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_eiw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-25T12:00:57Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/13-Metadata')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1098,6 +1645,71 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/08_dataflow_metrics')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "stagingmetricdataset",
+								"type": "DatasetReference"
+							},
+							"name": "stagingmetricstream"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "stagingoutput",
+								"type": "DatasetReference"
+							},
+							"name": "stagingoutputstream"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectcolumnsstream"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          total as double,",
+						"          minimum as double,",
+						"          maximum as double,",
+						"          average as double,",
+						"          resourceId as string,",
+						"          time as string,",
+						"          metricName as string,",
+						"          timeGrain as string,",
+						"          count as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> stagingmetricstream",
+						"stagingmetricstream select(mapColumn(",
+						"          average,",
+						"          time,",
+						"          metricName",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectcolumnsstream",
+						"selectcolumnsstream sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> stagingoutputstream"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/test_flow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1675,158 +2287,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/FileBinary')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/10-ConvertAccessLog')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dtAccess",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "06_dataflow_nginx",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"nginxstream": {},
-									"ServerLogStream": {}
-								}
-							},
-							"staging": {
-								"linkedService": {
-									"referenceName": "datalake1511_service",
-									"type": "LinkedServiceReference"
-								},
-								"folderPath": "staging"
-							},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-12-26T14:20:02Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/06_dataflow_nginx')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/11-ResourceGroup-Split')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dtSplit",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "07_dataflow_split",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"logparquetstream": {},
-									"logdatastream": {}
-								}
-							},
-							"staging": {
-								"linkedService": {
-									"referenceName": "datalake1511_service",
-									"type": "LinkedServiceReference"
-								},
-								"folderPath": "parquet"
-							},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-12-26T16:22:18Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/07_dataflow_split')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/test_pipeline')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "testdtflow",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "test_flow",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"testcsvstream": {},
-									"testsink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/test_flow')]"
 			]
 		}
 	]
