@@ -6,6 +6,10 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "appfactory1511"
+		},
+		"Blobtrigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Storage/storageAccounts/datalake1511"
 		}
 	},
 	"variables": {
@@ -389,6 +393,36 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Blobtrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "14-Metrics",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/stagingmetric/blobs/PT1H",
+					"ignoreEmptyBlobs": false,
+					"scope": "[parameters('Blobtrigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/14-Metrics')]"
+			]
 		}
 	]
 }
