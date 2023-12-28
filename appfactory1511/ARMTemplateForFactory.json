@@ -1683,8 +1683,8 @@
 											"path": "$['metricName']"
 										},
 										"sink": {
-											"name": "Metrictime",
-											"type": "DateTime"
+											"name": "MetricName",
+											"type": "String"
 										}
 									}
 								]
