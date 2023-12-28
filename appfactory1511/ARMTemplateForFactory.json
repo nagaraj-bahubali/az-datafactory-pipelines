@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'dataworkspace1511_pooldb_service'"
 		},
+		"webappdatalake1511_service_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'webappdatalake1511_service'"
+		},
 		"appvm_server_properties_typeProperties_host": {
 			"type": "string",
 			"defaultValue": "D:\\nginx-1.24.0\\logs"
@@ -34,6 +38,10 @@
 		"datalake1511_service_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://datalake1511.dfs.core.windows.net/"
+		},
+		"webappdatalake1511_service_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://webappdatalake1511.dfs.core.windows.net/"
 		}
 	},
 	"variables": {
@@ -1585,7 +1593,14 @@
 					{
 						"name": "dtMetrics",
 						"type": "ExecuteDataFlow",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "Copdatainsights",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -1738,6 +1753,58 @@
 								"enablePartitionDiscovery": false
 							}
 						}
+					},
+					{
+						"name": "Copdatainsights",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*.json",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "MergeFiles"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "InsightsMetricsData",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "stagingmetricdataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -1749,6 +1816,8 @@
 				"[concat(variables('factoryId'), '/dataflows/08_dataflow_metrics')]",
 				"[concat(variables('factoryId'), '/datasets/stagingoutput')]",
 				"[concat(variables('factoryId'), '/datasets/WebMetrics')]",
+				"[concat(variables('factoryId'), '/datasets/InsightsMetricsData')]",
+				"[concat(variables('factoryId'), '/datasets/stagingmetricdataset')]",
 				"[concat(variables('factoryId'), '/linkedServices/datalake1511_service')]"
 			]
 		},
@@ -2722,6 +2791,30 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/appvm_server')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/InsightsMetricsData')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "webappdatalake1511_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "resourceId=/SUBSCRIPTIONS/ED7147D5-2551-4A4D-90F9-01DDBE88F283/RESOURCEGROUPS/APP-GRP/PROVIDERS/MICROSOFT.WEB/SITES/WEBAPP15111994",
+						"fileSystem": "insights-metrics-pt1m"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/webappdatalake1511_service')]"
 			]
 		},
 		{
@@ -4023,6 +4116,23 @@
 				"type": "AzureSqlDW",
 				"typeProperties": {
 					"connectionString": "[parameters('dataworkspace1511_pooldb_service_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/webappdatalake1511_service')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('webappdatalake1511_service_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('webappdatalake1511_service_accountKey')]"
+					}
 				}
 			},
 			"dependsOn": []
