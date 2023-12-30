@@ -31,6 +31,9 @@
 		},
 		"webappdatalake1511_service_properties_typeProperties_url": {
 			"value": "https://webappdatalake1511.dfs.core.windows.net/"
+		},
+		"databricksworkspace_service_properties_typeProperties_existingClusterId": {
+			"value": "1230-140837-hm6y21n0"
 		}
 	}
 }

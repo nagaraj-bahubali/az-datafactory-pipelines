@@ -25,6 +25,77 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/test_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "datalake1511_service",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Log.csv",
+						"fileSystem": "csv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Correlation id",
+						"type": "String"
+					},
+					{
+						"name": "Operation name",
+						"type": "String"
+					},
+					{
+						"name": "Status",
+						"type": "String"
+					},
+					{
+						"name": "Event category",
+						"type": "String"
+					},
+					{
+						"name": "Level",
+						"type": "String"
+					},
+					{
+						"name": "Time",
+						"type": "String"
+					},
+					{
+						"name": "Subscription",
+						"type": "String"
+					},
+					{
+						"name": "Event initiated by",
+						"type": "String"
+					},
+					{
+						"name": "Resource type",
+						"type": "String"
+					},
+					{
+						"name": "Resource group",
+						"type": "String"
+					},
+					{
+						"name": "Resource",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/test_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -110,6 +181,40 @@
 					"referenceName": "appvmRuntime",
 					"type": "IntegrationRuntimeReference"
 				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/17-AzureDatabricks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RunNotebook",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/nagaraj.ba75@gmail.com/sample_runner"
+						},
+						"linkedServiceName": {
+							"referenceName": "databricksworkspace_service",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -2116,6 +2221,7 @@
 				}
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/test_csv')]",
 				"[concat(variables('factoryId'), '/datasets/test_parquet')]"
 			]
 		},
@@ -2171,120 +2277,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/01_dataflow_FactSales')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/05-Mappingdataflow-Dim')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dtflowDimension",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "02_dataflow_Dim",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Customerstream": {},
-									"ProductStream": {},
-									"ProductModelStream": {},
-									"ProductCategoryStream": {},
-									"GETMAXCustomerSK": {},
-									"DimProductLatest": {},
-									"DimCustomerstream": {},
-									"DimProductStream": {},
-									"CustomerSKSink": {}
-								}
-							},
-							"staging": {
-								"linkedService": {
-									"referenceName": "datalake1511_service",
-									"type": "LinkedServiceReference"
-								},
-								"folderPath": "staging"
-							},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine",
-							"sourceStagingConcurrency": 1
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-12-25T15:05:00Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/02_dataflow_Dim')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/06-Copy-logdata-filter')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dtFilter",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "03_dataflow_logdata",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"logdataparquetstream": {},
-									"logdataparquetstream2": {}
-								}
-							},
-							"staging": {
-								"linkedService": {
-									"referenceName": "datalake1511_service",
-									"type": "LinkedServiceReference"
-								},
-								"folderPath": "staging"
-							},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-12-26T11:01:21Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/03_dataflow_logdata')]"
 			]
 		}
 	]

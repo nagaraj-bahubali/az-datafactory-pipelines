@@ -42,6 +42,10 @@
 		"webappdatalake1511_service_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://webappdatalake1511.dfs.core.windows.net/"
+		},
+		"databricksworkspace_service_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1230-140837-hm6y21n0"
 		}
 	},
 	"variables": {
@@ -1585,7 +1589,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/14-Metrics')]",
+			"name": "[concat(parameters('factoryName'), '/16-Metrics')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -4138,37 +4142,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Tumblingtrigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "14-Metrics",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Minute",
-					"interval": 15,
-					"startTime": "2023-12-27T01:08:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/14-Metrics')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/appvmRuntime')]",
 			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
 			"apiVersion": "2018-06-01",
@@ -5204,6 +5177,58 @@
 				"[concat(variables('factoryId'), '/datasets/test_csv')]",
 				"[concat(variables('factoryId'), '/datasets/test_parquet')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/17-AzureDatabricks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RunNotebook",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/nagaraj.ba75@gmail.com/sample_runner"
+						},
+						"linkedServiceName": {
+							"referenceName": "databricksworkspace_service",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/databricksworkspace_service')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/databricksworkspace_service')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-6823487828917438.18.azuredatabricks.net",
+					"authentication": "MSI",
+					"workspaceResourceId": "/subscriptions/ed7147d5-2551-4a4d-90f9-01ddbe88f283/resourceGroups/data-grp/providers/Microsoft.Databricks/workspaces/databricksworkspace",
+					"existingClusterId": "[parameters('databricksworkspace_service_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }
